@@ -179,10 +179,20 @@ async function currentUser(req, res) {
 }
 
 // // Obtener informacion de todos los usuarios de la base de datos
-async function users(req, res) {
-	const data = await getUsers();
-	//Respuesta
-	res.json(data);
+async function traemeusuarios(req, res) {
+	try {
+		const data = await getUsers();
+		// console.log(
+		// 	"HOLA, ESTOY EN users-------------------------",
+		// 	typeof data[0].email,
+		// 	data[0].email
+		// );
+		// console.log(data);
+		// Enviar la respuesta en formato JSON
+		res.json(data[0].email);
+	} catch (error) {
+		res.status(500).json({ error: `Error al obtener los usuarios: ${error.message}` });
+	}
 }
 
 module.exports = {
@@ -191,5 +201,5 @@ module.exports = {
 	registerUser,
 	// recoveryPasswordUser,
 	currentUser,
-	users,
+	traemeusuarios,
 };

@@ -22,6 +22,21 @@ const getUsers = async () => {
 	try {
 		// Seleccionar todos los usuarios de la base de datos con todos sus atributos
 		const { data, error: queryError } = await supabase.from("usuarios").select("*");
+		console.log("Hola, estoy en consulta de base de datos", data);
+		// const users = [
+		// 	{
+		// 		id: "1",
+		// 		name: "Ada Lovelace",
+		// 		birthDate: "1815-12-10",
+		// 		username: "@ada",
+		// 	},
+		// 	{
+		// 		id: "2",
+		// 		name: "Alan Turing",
+		// 		birthDate: "1912-06-23",
+		// 		username: "@complete",
+		// 	},
+		// ];
 
 		//Si hay un error durante la consulta
 		if (queryError) {

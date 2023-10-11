@@ -12,6 +12,9 @@
 require("dotenv").config();
 
 const express = require("express");
+const { ApolloServer, gql } = require("apollo-server");
+const { buildFederatedSchema } = require("@apollo/federation");
+const { resolvers, typeDefs } = require("./src/configs/gateway");
 // const bodyParser = require("body-parser");
 // const cors = require("cors");
 
@@ -30,7 +33,45 @@ app.use(express.urlencoded({ extended: true }));
 app.use(configureCORS);
 app.use(authRoutes);
 
-// Iniciar el servidor
-app.listen(9000, () => {
-	console.log("Servidor Express.js en ejecución");
+// const typeDefs = gql`
+// 	extend type Query {
+// 		me: User
+// 	}
+
+// 	type User @key(fields: "id") {
+// 		id: ID!
+// 		name: String
+// 		username: String
+// 	}
+// `;
+
+// const resolvers = {
+// 	Query: {
+// 		me() {
+// 			return users[0];
+// 		},
+// 	},
+// 	User: {
+// 		__resolveReference(object) {
+// 			return users.find((user) => user.id === object.id);
+// 		},
+// 	},
+// };
+
+const server = new ApolloServer({
+	schema: buildFederatedSchema([
+		{
+			typeDefs,
+			resolvers,
+		},
+	]),
 });
+
+server.listen({ port: 9000 }).then(({ url }) => {
+	console.log(`🚀 Server ready at ${url}`);
+});
+
+// Iniciar el servidor
+// app.listen(9000, () => {
+// 	console.log("Servidor de AUTENTICACION Express.js en ejecución");
+// });

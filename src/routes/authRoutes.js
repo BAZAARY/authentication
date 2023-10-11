@@ -6,7 +6,7 @@ const {
 	registerUser,
 	recoveryPasswordUser,
 	currentUser,
-	users,
+	traemeusuarios,
 } = require("../controllers/authController");
 const { verifyToken } = require("../middlewares/authMiddleware");
 
@@ -15,6 +15,6 @@ router.post("/logingoogle", loginGoogleUser);
 router.post("/register/user", registerUser);
 // router.post("/sendrecoveryemail", recoveryPasswordUser);
 router.get("/currentuser", verifyToken, currentUser);
-router.get("/users", users);
+router.get("/users", traemeusuarios);
 
 module.exports = router;
