@@ -51,11 +51,11 @@ async function loginUser(req, res) {
 		const user = {
 			id_usuario: usuarioData.id_usuario,
 			email: usuarioData.email,
-			nickname: usuarioData.nickname,
+			nombre_usuario: usuarioData.nombre_usuario,
 		};
 
 		console.log("user", user, "usuarioData", usuarioData);
-		// Generar token JWT con el id_usuario email y nickname del usuario
+		// Generar token JWT con el id_usuario email y nombre del usuario
 		const token = jwt.sign(user, secretKey);
 
 		// Enviar el token al frontend con los datos del usuario y un mensaje de confirmacion
@@ -102,10 +102,10 @@ async function loginGoogleUser(req, res) {
 		const user = {
 			id_usuario: usuarioData.id_usuario,
 			email: usuarioData.email,
-			nickname: usuarioData.nickname,
+			nombre_usuario: usuarioData.nombre_usuario,
 		};
 
-		// Generar token JWT con el id_usuario email y nickname del usuario
+		// Generar token JWT con el id_usuario email y nombre del usuario
 		const token = jwt.sign(user, secretKey);
 
 		// Enviar el token al frontend con los datos del usuario y un mensaje de confirmacion
@@ -151,12 +151,12 @@ async function loginGoogleUser(req, res) {
 async function registerUser(req, res) {
 	try {
 		//Datos de registro del usuario recibidos
-		const { email, nombre_usuario, nickname, avatar_id, contrasena } = req.body;
+		const { email, nombre_usuario, contrasena } = req.body;
 
 		// Generar el hash de la contraseña
 		const hashedPassword = await bcrypt.hash(contrasena, 10); // 10 es el número de rondas de hashing
 
-		const data = await insertUser(email, nombre_usuario, nickname, avatar_id, hashedPassword);
+		const data = await insertUser(email, nombre_usuario, hashedPassword);
 
 		// console.log("data", data);
 
@@ -171,7 +171,7 @@ async function registerUser(req, res) {
 async function currentUser(req, res) {
 	const userId = req.user.id_usuario;
 	const email = req.user.email;
-	const username = req.user.nickname;
+	const username = req.user.nombre_usuario;
 
 	console.log("INFO TOKEN:", userId, email, username);
 

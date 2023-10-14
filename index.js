@@ -58,20 +58,20 @@ app.use(authRoutes);
 // 	},
 // };
 
-const server = new ApolloServer({
-	schema: buildFederatedSchema([
-		{
-			typeDefs,
-			resolvers,
-		},
-	]),
-});
+// const server = new ApolloServer({
+// 	schema: buildFederatedSchema([
+// 		{
+// 			typeDefs,
+// 			resolvers,
+// 		},
+// 	]),
+// });
 
-server.listen({ port: 9000 }).then(({ url }) => {
-	console.log(`🚀 Server ready at ${url}`);
-});
+// server.listen({ port: 9000 }).then(({ url }) => {
+// 	console.log(`🚀 AUTHENTICATION Server ready at ${url}`);
+// });
 
 // Iniciar el servidor
-// app.listen(9000, () => {
-// 	console.log("Servidor de AUTENTICACION Express.js en ejecución");
-// });
+app.listen(9000, () => {
+	console.log("Servidor de AUTENTICACION Express.js en ejecución");
+});

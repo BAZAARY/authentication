@@ -49,12 +49,12 @@ const getUsers = async () => {
 	}
 };
 
-const insertUser = async (email, nombre_usuario, nickname, avatar_id, hashedPassword) => {
+const insertUser = async (email, nombre_usuario, hashedPassword) => {
 	try {
 		// Guardar los datos adicionales del usuario en la tabla 'usuarios'
 		const { data, error: insertError } = await supabase
 			.from("usuarios")
-			.insert([{ email, nickname, nombre_usuario, avatar_id, contrasena: hashedPassword }]);
+			.insert([{ email, nombre_usuario, contrasena: hashedPassword }]);
 
 		//Si hay un error durante la insercion de los datos del usuario
 		if (insertError) {
@@ -104,7 +104,7 @@ const insertGoogleUser = async (email, given_name, name) => {
 		// Guardar los datos del usuario en la tabla 'usuarios'
 		const { data, error: insertError } = await supabase
 			.from("usuarios")
-			.insert([{ email: email, nickname: given_name, nombre_usuario: name }]);
+			.insert([{ email: email, nombre_usuario: name }]);
 
 		//Si hay un error durante la insercion de los datos del usuario
 		if (insertError) {
