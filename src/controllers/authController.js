@@ -148,24 +148,31 @@ async function loginGoogleUser(req, res) {
 // }
 
 //POST para el registro de usuarios
-async function registerUser(req, res) {
-	try {
-		//Datos de registro del usuario recibidos
-		const { email, nombre_usuario, contrasena } = req.body;
+async function registerUser(email, nombre_usuario, contrasena) {
+	return new Promise(async (resolve, reject) => {
+		try {
+			// Datos de registro del usuario recibidos
+			// const { email, nombre_usuario, contrasena } = input;
+			console.log("AQUI", email, nombre_usuario);
 
-		// Generar el hash de la contraseña
-		const hashedPassword = await bcrypt.hash(contrasena, 10); // 10 es el número de rondas de hashing
+			// Generar el hash de la contraseña
+			const hashedPassword = await bcrypt.hash(contrasena, 10); // 10 es el número de rondas de hashing
 
-		const data = await insertUser(email, nombre_usuario, hashedPassword);
+			const data = await insertUser(email, nombre_usuario, hashedPassword);
 
-		// console.log("data", data);
+			// Respuesta
+			// return "OK";
 
-		//Respuesta
-		res.json("OK");
-	} catch (error) {
-		console.error("Error al crear el usuario:", error);
-		res.status(500).json({ error: error.message });
-	}
+			// Resuelve la promesa con el resultado si es necesario
+			resolve("OK");
+		} catch (error) {
+			console.error("Error al crear el usuario:", error);
+
+			// Rechaza la promesa con el error
+			reject(error);
+			// res.status(500).json({ error: error.message });
+		}
+	});
 }
 
 async function currentUser(req, res) {

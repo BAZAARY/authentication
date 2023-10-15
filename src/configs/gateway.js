@@ -1,6 +1,6 @@
 // const bcrypt = require("bcrypt"); // Para encriptar contraseñas
 // const jwt = require("jsonwebtoken"); // Para manejar tokens JWT
-const { traemeusuarios, loginUser } = require("../controllers/authController");
+const { traemeusuarios, loginUser, registerUser } = require("../controllers/authController");
 const { getUsers } = require("../models/UsuariosModel");
 const { gql } = require("apollo-server");
 
@@ -8,23 +8,28 @@ const { gql } = require("apollo-server");
 const typeDefs = gql`
 	extend type Query {
 		users: User
+		registerUser: RegistrationResult
 	}
 
 	type User @key(fields: "id_usuario") {
 		id_usuario: ID
 		email: String
 		nombre_usuario: String
-		nickname: String
-		avatar_id: Int
 		contrasena: String
-		logro_monarquia: Boolean
-		logro_republica: Boolean
-		logro_imperio: Boolean
-		logro_personajes: Boolean
-		logro_arquitectura: Boolean
-		logro_cultura: Boolean
-		nivel: Int
-		experiencia: Int
+	}
+
+	input UserInput {
+		email: String!
+		nombre_usuario: String!
+		contrasena: String!
+	}
+
+	type RegistrationResult {
+		message: String!
+	}
+
+	type Mutation {
+		registerUser(input: UserInput!): RegistrationResult!
 	}
 `;
 
@@ -46,6 +51,23 @@ const resolvers = {
 			}
 		},
 		// Otros resolvers de consulta según sea necesario
+	},
+
+	Mutation: {
+		registerUser: async (_, { input }) => {
+			try {
+				const { email, nombre_usuario, contrasena } = input;
+				console.log("-->", email, nombre_usuario, contrasena, input);
+
+				// Lógica para registrar al usuario y obtener el mensaje de confirmación
+				const message = await registerUser(email, nombre_usuario, contrasena);
+				console.log("message", message);
+
+				return { message };
+			} catch (error) {
+				throw new Error(`Error al registrar el usuario: ${error.message}`);
+			}
+		},
 	},
 
 	// Mutation: {

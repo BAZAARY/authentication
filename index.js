@@ -33,45 +33,20 @@ app.use(express.urlencoded({ extended: true }));
 app.use(configureCORS);
 app.use(authRoutes);
 
-// const typeDefs = gql`
-// 	extend type Query {
-// 		me: User
-// 	}
+const server = new ApolloServer({
+	schema: buildFederatedSchema([
+		{
+			typeDefs,
+			resolvers,
+		},
+	]),
+});
 
-// 	type User @key(fields: "id") {
-// 		id: ID!
-// 		name: String
-// 		username: String
-// 	}
-// `;
-
-// const resolvers = {
-// 	Query: {
-// 		me() {
-// 			return users[0];
-// 		},
-// 	},
-// 	User: {
-// 		__resolveReference(object) {
-// 			return users.find((user) => user.id === object.id);
-// 		},
-// 	},
-// };
-
-// const server = new ApolloServer({
-// 	schema: buildFederatedSchema([
-// 		{
-// 			typeDefs,
-// 			resolvers,
-// 		},
-// 	]),
-// });
-
-// server.listen({ port: 9000 }).then(({ url }) => {
-// 	console.log(`🚀 AUTHENTICATION Server ready at ${url}`);
-// });
+server.listen({ port: 9000 }).then(({ url }) => {
+	console.log(`🚀 AUTHENTICATION Server ready at ${url}`);
+});
 
 // Iniciar el servidor
-app.listen(9000, () => {
-	console.log("Servidor de AUTENTICACION Express.js en ejecución");
-});
+// app.listen(9000, () => {
+// 	console.log("Servidor de AUTENTICACION Express.js en ejecución");
+// });
