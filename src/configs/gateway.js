@@ -9,6 +9,7 @@ const typeDefs = gql`
 	extend type Query {
 		users: User
 		registerUser: RegistrationResult
+		loginUser: LoginResult
 	}
 
 	type User @key(fields: "id_usuario") {
@@ -20,7 +21,7 @@ const typeDefs = gql`
 
 	input UserInput {
 		email: String!
-		nombre_usuario: String!
+		nombre_usuario: String
 		contrasena: String!
 	}
 
@@ -28,8 +29,15 @@ const typeDefs = gql`
 		message: String!
 	}
 
+	type LoginResult {
+		user: User
+		token: String
+		message: String
+	}
+
 	type Mutation {
 		registerUser(input: UserInput!): RegistrationResult!
+		loginUser(input: UserInput!): LoginResult
 	}
 `;
 
@@ -57,15 +65,29 @@ const resolvers = {
 		registerUser: async (_, { input }) => {
 			try {
 				const { email, nombre_usuario, contrasena } = input;
-				console.log("-->", email, nombre_usuario, contrasena, input);
 
 				// Lógica para registrar al usuario y obtener el mensaje de confirmación
 				const message = await registerUser(email, nombre_usuario, contrasena);
-				console.log("message", message);
 
 				return { message };
 			} catch (error) {
 				throw new Error(`Error al registrar el usuario: ${error.message}`);
+			}
+		},
+	},
+
+	Mutation: {
+		loginUser: async (_, { input }) => {
+			try {
+				const { email, contrasena } = input;
+
+				// Lógica para registrar al usuario y obtener el mensaje de confirmación
+				const result = await loginUser(email, contrasena);
+				console.log("result", result);
+
+				return result;
+			} catch (error) {
+				throw new Error(`Error al inciar sesion (resolver): ${error.message}`);
 			}
 		},
 	},

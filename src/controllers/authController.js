@@ -29,41 +29,45 @@ const secretKey = process.env.SECRET_KEY_JWT;
 // });
 
 //POST para el inicio de sesion de los usuarios
-async function loginUser(req, res) {
-	try {
-		// Datos obtenidos por el frontend
-		const { email, contrasena } = req.body;
+async function loginUser(email, contrasena) {
+	return new Promise(async (resolve, reject) => {
+		try {
+			// Datos obtenidos por el frontend
+			// const { email, contrasena } = req.body;
 
-		// Realizar la consulta para obtener todos los datos del usuario en la base de datos
-		const usuarioData = await getUserByEmail(email);
+			// Realizar la consulta para obtener todos los datos del usuario en la base de datos
+			const usuarioData = await getUserByEmail(email);
 
-		// Verificar el hash de la contraseña
-		const contrasenaHash = usuarioData.contrasena;
+			// Verificar el hash de la contraseña
+			const contrasenaHash = usuarioData.contrasena;
 
-		// Comparar el hash almacenado con el hash de la contraseña proporcionada por el usuario
-		const match = await bcrypt.compare(contrasena, contrasenaHash);
+			// Comparar el hash almacenado con el hash de la contraseña proporcionada por el usuario
+			const match = await bcrypt.compare(contrasena, contrasenaHash);
 
-		// Si las contraseñas no coinciden, se envía una respuesta de error
-		if (!match) {
-			throw new Error("Credenciales de inicio de sesión inválidas");
+			// Si las contraseñas no coinciden, se envía una respuesta de error
+			if (!match) {
+				throw new Error("Credenciales de inicio de sesión inválidas");
+			}
+
+			const user = {
+				id_usuario: usuarioData.id_usuario,
+				email: usuarioData.email,
+				nombre_usuario: usuarioData.nombre_usuario,
+			};
+
+			console.log("user", user, "usuarioData", usuarioData);
+			// Generar token JWT con el id_usuario email y nombre del usuario
+			const token = jwt.sign(user, secretKey);
+
+			// Enviar el token al frontend con los datos del usuario y un mensaje de confirmacion
+			resolve({ user, token, message: "Inicio de sesión exitoso" });
+		} catch (error) {
+			console.error("Error al inciar sesion:", error);
+
+			// Rechaza la promesa con el error
+			reject(error);
 		}
-
-		const user = {
-			id_usuario: usuarioData.id_usuario,
-			email: usuarioData.email,
-			nombre_usuario: usuarioData.nombre_usuario,
-		};
-
-		console.log("user", user, "usuarioData", usuarioData);
-		// Generar token JWT con el id_usuario email y nombre del usuario
-		const token = jwt.sign(user, secretKey);
-
-		// Enviar el token al frontend con los datos del usuario y un mensaje de confirmacion
-		res.json({ usuarioData, token, message: "Inicio de sesión exitoso" });
-	} catch (error) {
-		console.error("Error al iniciar sesión:", error);
-		res.status(500).json({ error: "Credenciales de inicio de sesión inválidas" });
-	}
+	});
 }
 
 //POST LOGIN WITH GOOGLE
@@ -153,7 +157,6 @@ async function registerUser(email, nombre_usuario, contrasena) {
 		try {
 			// Datos de registro del usuario recibidos
 			// const { email, nombre_usuario, contrasena } = input;
-			console.log("AQUI", email, nombre_usuario);
 
 			// Generar el hash de la contraseña
 			const hashedPassword = await bcrypt.hash(contrasena, 10); // 10 es el número de rondas de hashing
