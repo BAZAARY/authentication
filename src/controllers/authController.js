@@ -71,53 +71,56 @@ async function loginUser(email, contrasena) {
 }
 
 //POST LOGIN WITH GOOGLE
-async function loginGoogleUser(req, res) {
-	try {
-		const { credentialResponse } = req.body;
-
-		const clientId = credentialResponse.clientId;
-		const credential = credentialResponse.credential;
-
-		// Verificar el token con la función verifyTokenGoogle
-		const payload = await verifyTokenGoogle(clientId, credential);
-
-		//Obtener datos del usuario
-		const { email, name, picture, given_name } = payload;
-
-		//Email a verificar si ya existe en la base de datos
-		const emailToCheck = email;
-
+async function loginGoogleUser(clientId, credential) {
+	return new Promise(async (resolve, reject) => {
 		try {
-			//Consulta para verificar si el email existe en la base de datos
-			const verifyExistenceUser = await searchUser(emailToCheck);
+			// const { credentialResponse } = req.body;
 
-			//Si el correo electrónico NO está registrado en la tabla
-			if (verifyExistenceUser.length == 0) {
-				const registerUser = await insertGoogleUser(email, given_name, name);
-				console.log(registerUser);
+			// const clientId = credentialResponse.clientId;
+			// const credential = credentialResponse.credential;
+
+			// Verificar el token con la función verifyTokenGoogle
+			const payload = await verifyTokenGoogle(clientId, credential);
+
+			//Obtener datos del usuario
+			const { email, name, picture, given_name } = payload;
+
+			//Email a verificar si ya existe en la base de datos
+			const emailToCheck = email;
+
+			try {
+				//Consulta para verificar si el email existe en la base de datos
+				const verifyExistenceUser = await searchUser(emailToCheck);
+
+				//Si el correo electrónico NO está registrado en la tabla
+				if (verifyExistenceUser.length == 0) {
+					const registerUser = await insertGoogleUser(email, given_name, name);
+					console.log(registerUser);
+				}
+			} catch (error) {
+				console.error("Error en la consulta:", error);
 			}
+
+			const usuarioData = await getUserByEmail(email);
+
+			//Datos para poner en el token
+			const user = {
+				id_usuario: usuarioData.id_usuario,
+				email: usuarioData.email,
+				nombre_usuario: usuarioData.nombre_usuario,
+			};
+
+			// Generar token JWT con el id_usuario email y nombre del usuario
+			const token = jwt.sign(user, secretKey);
+
+			// Enviar el token al frontend con los datos del usuario y un mensaje de confirmacion
+			// res.json({ usuarioData, token, message: "Inicio de sesión exitoso" });
+			resolve({ user, token, message: "Inicio de sesión (Google) exitoso" });
 		} catch (error) {
-			console.error("Error en la consulta:", error);
+			console.error("Error al iniciar sesión:", error);
+			res.status(500).json({ error: "Credenciales de inicio de sesión inválidas" });
 		}
-
-		const usuarioData = await getUserByEmail(email);
-
-		//Datos para poner en el token
-		const user = {
-			id_usuario: usuarioData.id_usuario,
-			email: usuarioData.email,
-			nombre_usuario: usuarioData.nombre_usuario,
-		};
-
-		// Generar token JWT con el id_usuario email y nombre del usuario
-		const token = jwt.sign(user, secretKey);
-
-		// Enviar el token al frontend con los datos del usuario y un mensaje de confirmacion
-		res.json({ usuarioData, token, message: "Inicio de sesión exitoso" });
-	} catch (error) {
-		console.error("Error al iniciar sesión:", error);
-		res.status(500).json({ error: "Credenciales de inicio de sesión inválidas" });
-	}
+	});
 }
 
 // Ruta para enviar el correo electrónico

@@ -1,6 +1,11 @@
 // const bcrypt = require("bcrypt"); // Para encriptar contraseñas
 // const jwt = require("jsonwebtoken"); // Para manejar tokens JWT
-const { traemeusuarios, loginUser, registerUser } = require("../controllers/authController");
+const {
+	traemeusuarios,
+	loginUser,
+	registerUser,
+	loginGoogleUser,
+} = require("../controllers/authController");
 const { getUsers } = require("../models/UsuariosModel");
 const { gql } = require("apollo-server");
 
@@ -19,11 +24,20 @@ const typeDefs = gql`
 		contrasena: String
 	}
 
+	#INPUTS
+
 	input UserInput {
 		email: String!
 		nombre_usuario: String
 		contrasena: String!
 	}
+
+	input CredentialLoginGoogle {
+		clientId: String!
+		credential: String!
+	}
+
+	#LO QUE RETORNA AL GATEWAY/FRONTEND
 
 	type RegistrationResult {
 		message: String!
@@ -35,9 +49,16 @@ const typeDefs = gql`
 		message: String
 	}
 
+	type LoginGoogleResult {
+		user: User
+		token: String
+		message: String
+	}
+
 	type Mutation {
 		registerUser(input: UserInput!): RegistrationResult!
 		loginUser(input: UserInput!): LoginResult
+		loginGoogleUser(input: CredentialLoginGoogle!): LoginGoogleResult
 	}
 `;
 
@@ -92,18 +113,21 @@ const resolvers = {
 		},
 	},
 
-	// Mutation: {
-	// 	async loginUser(_, { email, contrasena }) {
-	// 		try {
-	// 			return await loginUser(email, contrasena);
-	// 		} catch (error) {
-	// 			throw new Error(`Error al iniciar sesión: ${error.message}`);
-	// 		}
-	// 	},
-	// 	// Otras mutaciones según sea necesario
-	// },
+	Mutation: {
+		loginGoogleUser: async (_, { input }) => {
+			try {
+				const { clientId, credential } = input;
 
-	// Otros resolvers según sea necesario
+				// Lógica para registrar al usuario y obtener el mensaje de confirmación
+				const result = await loginGoogleUser(clientId, credential);
+				console.log("GOOGLE USER MUTATION--------->", result);
+
+				return result;
+			} catch (error) {
+				throw new Error(`Error al inciar sesion GOOGLE (resolver): ${error.message}`);
+			}
+		},
+	},
 };
 
 const users = [
