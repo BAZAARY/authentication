@@ -1,9 +1,13 @@
-const { OAuth2Client } = require("google-auth-library");
+import { OAuth2Client } from "google-auth-library";
+import { config } from "dotenv";
+import jwt from "jsonwebtoken";
+
+config(); // Load environment variables from .env file
+
 const secretKey = process.env.SECRET_KEY_JWT;
-const jwt = require("jsonwebtoken");
 
 // Middleware para verificar la validez de un token de autenticacion JWT
-function verifyToken(req, res, next) {
+export function verifyToken(req, res, next) {
 	//Extrae el token del encabezado de autorizacion de la solicitud
 	//El token se envía al servidor en el encabezado de autorización utilizando el esquema 'Bearer'
 	const token = req.headers.authorization;
@@ -29,7 +33,7 @@ function verifyToken(req, res, next) {
 }
 
 //Verify token with Google sign in
-async function verifyTokenGoogle(client_id, jwtToken) {
+export async function verifyTokenGoogle(client_id, jwtToken) {
 	const client = new OAuth2Client(client_id);
 	// Call the verifyIdToken to
 	// varify and decode it
@@ -43,8 +47,3 @@ async function verifyTokenGoogle(client_id, jwtToken) {
 	// all the user info
 	return payload;
 }
-
-module.exports = {
-	verifyToken,
-	verifyTokenGoogle,
-};

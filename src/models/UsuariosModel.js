@@ -1,10 +1,10 @@
 /**
  * MANEJO DE LAS SOLICITUDES A LA BASE DE DATOS DE LA TABLA DE "usuarios"
  */
-const { supabase } = require("../configs/databaseConfig");
+import { supabase } from "../configs/databaseConfig.js";
 
 // Realizar la consulta para obtener todos los datos del usuario en la base de datos
-const getUserByEmail = async (email) => {
+export const getUserByEmail = async (email) => {
 	try {
 		const { data, error } = await supabase.from("usuarios").select("*").eq("email", email).single();
 
@@ -18,7 +18,7 @@ const getUserByEmail = async (email) => {
 	}
 };
 
-const getUsers = async () => {
+export const getUsers = async () => {
 	try {
 		// Seleccionar todos los usuarios de la base de datos con todos sus atributos
 		const { data, error: queryError } = await supabase.from("usuarios").select("*");
@@ -49,7 +49,7 @@ const getUsers = async () => {
 	}
 };
 
-const insertUser = async (email, nombre_usuario, hashedPassword) => {
+export const insertUser = async (email, nombre_usuario, hashedPassword) => {
 	try {
 		// Guardar los datos adicionales del usuario en la tabla 'usuarios'
 		const { data, error: insertError } = await supabase
@@ -68,7 +68,7 @@ const insertUser = async (email, nombre_usuario, hashedPassword) => {
 	}
 };
 
-const updatePasswordUser = async (to) => {
+export const updatePasswordUser = async (to) => {
 	try {
 		const { error: queryError } = await supabase.from("usuarios").update(newData).eq("email", to);
 
@@ -81,7 +81,7 @@ const updatePasswordUser = async (to) => {
 	}
 };
 //Consulta para verificar si el email existe en la base de datos
-const searchUser = async (emailToCheck) => {
+export const searchUser = async (emailToCheck) => {
 	try {
 		//Consulta para verificar si el email existe en la base de datos
 		const { data: userData, error: queryError } = await supabase
@@ -100,7 +100,7 @@ const searchUser = async (emailToCheck) => {
 	}
 };
 
-const insertGoogleUser = async (email, given_name, name) => {
+export const insertGoogleUser = async (email, given_name, name) => {
 	try {
 		// Guardar los datos del usuario en la tabla 'usuarios'
 		const { data, error: insertError } = await supabase
@@ -118,7 +118,7 @@ const insertGoogleUser = async (email, given_name, name) => {
 	}
 };
 
-const getUserPassword = async (id_usuario) => {
+export const getUserPassword = async (id_usuario) => {
 	try {
 		//Obtener contrasena encriptada del usuario
 		const { data, error } = await supabase
@@ -137,7 +137,7 @@ const getUserPassword = async (id_usuario) => {
 	}
 };
 
-const updateUserPassword = async (newData, id_usuario) => {
+export const updateUserPassword = async (newData, id_usuario) => {
 	try {
 		const { data, error } = await supabase
 			.from("usuarios")
@@ -155,13 +155,13 @@ const updateUserPassword = async (newData, id_usuario) => {
 	}
 };
 
-module.exports = {
-	getUserByEmail,
-	getUsers,
-	getUserPassword,
-	insertGoogleUser,
-	insertUser,
-	updatePasswordUser,
-	updateUserPassword,
-	searchUser,
-};
+// module.exports = {
+// 	getUserByEmail,
+// 	getUsers,
+// 	getUserPassword,
+// 	insertGoogleUser,
+// 	insertUser,
+// 	updatePasswordUser,
+// 	updateUserPassword,
+// 	searchUser,
+// };

@@ -9,44 +9,35 @@
 * config: Almacena archivos de configuración, como configuraciones de base de datos o claves secretas.
 */
 
-require("dotenv").config();
+import { ApolloServer } from "@apollo/server";
+import { expressMiddleware } from "@apollo/server/express4";
+import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
+import express from "express";
+import http from "http";
+import cors from "cors";
+import { typeDefs, resolvers } from "./src/configs/gateway.js";
+import { buildSubgraphSchema } from "@apollo/federation";
 
-// const express = require("express");
-const { ApolloServer, gql } = require("apollo-server");
-const { buildFederatedSchema } = require("@apollo/federation");
-const { resolvers, typeDefs } = require("./src/configs/gateway");
-// const bodyParser = require("body-parser");
-// const cors = require("cors");
+const app = express();
 
-//IMPORTAR RUTAS
-// const authRoutes = require("./src/routes/authRoutes");
-// const app = express();
-
-// const { configureCORS } = require("./src/middlewares/corsMiddleware");
-
-// Middleware for parsing JSON bodies
-// app.use(express.json());
-// app.use(express.urlencoded({ extended: true }));
-
-// Allow all the incoming IP addresses
-// app.use(cors());
-// app.use(configureCORS);
-// app.use(authRoutes);
+const httpServer = http.createServer(app);
 
 const server = new ApolloServer({
-	schema: buildFederatedSchema([
-		{
-			typeDefs,
-			resolvers,
-		},
-	]),
+	schema: buildSubgraphSchema({ typeDefs, resolvers }),
+	plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 });
 
-server.listen({ port: 9000 }).then(({ url }) => {
-	console.log(`🚀 AUTHENTICATION Server ready at ${url}`);
-});
+await server.start();
 
-// Iniciar el servidor
-// app.listen(9000, () => {
-// 	console.log("Servidor de AUTENTICACION Express.js en ejecución");
-// });
+app.use(
+	"/graphql",
+	cors(),
+	express.json(),
+	expressMiddleware(server, {
+		context: async ({ req }) => ({ token: req.headers.token }),
+	})
+);
+
+await new Promise((resolve) => httpServer.listen({ port: 9000 }, resolve));
+
+console.log(`🚀 AUTHENTICATION Server ready at http://localhost:9000/graphql`);

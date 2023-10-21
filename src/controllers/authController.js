@@ -2,34 +2,25 @@
  * Controladores de autenticacion, manejo de las cuentas de usuario
  */
 
-const {
+import {
 	getUserByEmail,
 	getUsers,
 	insertUser,
 	// updatePasswordUser,
 	searchUser,
 	insertGoogleUser,
-} = require("../models/UsuariosModel");
-const { verifyTokenGoogle } = require("../middlewares/authMiddleware");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
-const secretKey = process.env.SECRET_KEY_JWT;
-// const nodemailer = require("nodemailer");
+} from "../models/UsuariosModel.js";
+import { verifyTokenGoogle } from "../middlewares/authMiddleware.js";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+import { config } from "dotenv";
 
-// Configura el transporte de nodemailer con tus credenciales de Gmail
-// const transporter = nodemailer.createTransport({
-// 	service: "gmail",
-// 	host: "smtp.gmail.com",
-// 	port: 465,
-// 	secure: true,
-// 	auth: {
-// 		user: "romainteractiva@gmail.com",
-// 		pass: "moqkwrtblblthnaw",
-// 	},
-// });
+config();
+
+const secretKey = process.env.SECRET_KEY_JWT;
 
 //POST para el inicio de sesion de los usuarios
-async function loginUser(email, contrasena) {
+export async function loginUser(email, contrasena) {
 	return new Promise(async (resolve, reject) => {
 		try {
 			// Datos obtenidos por el frontend
@@ -71,7 +62,7 @@ async function loginUser(email, contrasena) {
 }
 
 //POST LOGIN WITH GOOGLE
-async function loginGoogleUser(clientId, credential) {
+export async function loginGoogleUser(clientId, credential) {
 	return new Promise(async (resolve, reject) => {
 		try {
 			// const { credentialResponse } = req.body;
@@ -155,7 +146,7 @@ async function loginGoogleUser(clientId, credential) {
 // }
 
 //POST para el registro de usuarios
-async function registerUser(email, nombre_usuario, contrasena) {
+export async function registerUser(email, nombre_usuario, contrasena) {
 	return new Promise(async (resolve, reject) => {
 		try {
 			// Datos de registro del usuario recibidos
@@ -193,7 +184,7 @@ async function currentUser(req, res) {
 }
 
 // // Obtener informacion de todos los usuarios de la base de datos
-async function traemeusuarios(req, res) {
+export async function traemeusuarios(req, res) {
 	try {
 		const data = await getUsers();
 		// console.log(
@@ -209,11 +200,11 @@ async function traemeusuarios(req, res) {
 	}
 }
 
-module.exports = {
-	loginUser,
-	loginGoogleUser,
-	registerUser,
-	// recoveryPasswordUser,
-	currentUser,
-	traemeusuarios,
-};
+// module.exports = {
+// 	loginUser,
+// 	loginGoogleUser,
+// 	registerUser,
+// 	// recoveryPasswordUser,
+// 	currentUser,
+// 	traemeusuarios,
+// };

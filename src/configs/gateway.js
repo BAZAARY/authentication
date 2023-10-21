@@ -1,16 +1,22 @@
 // const bcrypt = require("bcrypt"); // Para encriptar contraseñas
 // const jwt = require("jsonwebtoken"); // Para manejar tokens JWT
-const {
+// const {
+// 	traemeusuarios,
+// 	loginUser,
+// 	registerUser,
+// 	loginGoogleUser,
+// } = require("../controllers/authController");
+import {
 	traemeusuarios,
 	loginUser,
 	registerUser,
 	loginGoogleUser,
-} = require("../controllers/authController");
-const { getUsers } = require("../models/UsuariosModel");
-const { gql } = require("apollo-server");
+} from "../controllers/authController.js";
+import { getUsers } from "../models/UsuariosModel.js";
+import { gql } from "apollo-server-express";
 
 //SCHEMA
-const typeDefs = gql`
+export const typeDefs = gql`
 	extend type Query {
 		users: User
 		registerUser: RegistrationResult
@@ -64,7 +70,7 @@ const typeDefs = gql`
 `;
 
 //RESOLVERS
-const resolvers = {
+export const resolvers = {
 	Query: {
 		users: async () => {
 			console.log("AAAAAAAAAAAAAAAA");
@@ -119,5 +125,3 @@ const resolvers = {
 		},
 	},
 };
-
-module.exports = { typeDefs, resolvers };
