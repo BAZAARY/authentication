@@ -9,35 +9,64 @@
 * config: Almacena archivos de configuración, como configuraciones de base de datos o claves secretas.
 */
 
-import { ApolloServer } from "@apollo/server";
-import { expressMiddleware } from "@apollo/server/express4";
-import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
-import express from "express";
+import { ApolloServer, gql } from "apollo-server-express";
+import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
+import { buildSubgraphSchema } from "@apollo/subgraph";
 import http from "http";
+import express from "express";
 import cors from "cors";
 import { typeDefs, resolvers } from "./src/configs/gateway.js";
-import { buildSubgraphSchema } from "@apollo/subgraph";
 
 const app = express();
 
+app.use(cors());
+app.use(express.json());
+
 const httpServer = http.createServer(app);
 
-const server = new ApolloServer({
-	schema: buildSubgraphSchema({ typeDefs, resolvers }),
-	plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-});
+const startApolloServer = async (app, httpServer) => {
+	const server = new ApolloServer({
+		schema: buildSubgraphSchema({ typeDefs, resolvers }),
+		plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+	});
 
-await server.start();
+	await server.start();
+	server.applyMiddleware({ app });
+};
 
-app.use(
-	"/graphql",
-	cors(),
-	express.json(),
-	expressMiddleware(server, {
-		context: async ({ req }) => ({ token: req.headers.token }),
-	})
+startApolloServer(app, httpServer);
+
+app.listen(9000, () =>
+	console.log("🚀 AUTHENTICATION Server ready at http://localhost:9000/graphql")
 );
 
-await new Promise((resolve) => httpServer.listen({ port: 9000 }, resolve));
+// export default httpServer;
 
-console.log(`🚀 AUTHENTICATION Server ready at http://localhost:9000/graphql`);
+// import { ApolloServer } from "@apollo/server";
+// import { expressMiddleware } from "@apollo/server/express4";
+// import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
+// import express from "express";
+// import http from "http";
+// import cors from "cors";
+// import { typeDefs, resolvers } from "./src/configs/gateway.js";
+// import { buildSubgraphSchema } from "@apollo/subgraph";
+
+// const server = new ApolloServer({
+// 	schema: buildSubgraphSchema({ typeDefs, resolvers }),
+// 	plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+// });
+
+// await server.start();
+
+// app.use(
+// 	"/graphql",
+// 	cors(),
+// 	express.json(),
+// 	expressMiddleware(server, {
+// 		context: async ({ req }) => ({ token: req.headers.token }),
+// 	})
+// );
+
+// await new Promise((resolve) => httpServer.listen({ port: 9000 }, resolve));
+
+// console.log(`🚀 AUTHENTICATION Server ready at http://localhost:9000/graphql`);

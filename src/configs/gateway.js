@@ -13,7 +13,7 @@ import {
 	loginGoogleUser,
 } from "../controllers/authController.js";
 import { getUsers } from "../models/UsuariosModel.js";
-import gql from "graphql-tag";
+import { gql } from "apollo-server-express";
 
 //SCHEMA
 export const typeDefs = gql`
