@@ -15,6 +15,7 @@ const typeDefs = gql`
 		users: User
 		registerUser: RegistrationResult
 		loginUser: LoginResult
+		loginGoogleUser: LoginGoogleResult
 	}
 
 	type User @key(fields: "id_usuario") {
@@ -62,10 +63,6 @@ const typeDefs = gql`
 	}
 `;
 
-// type Mutation {
-//   loginUser(email: String!, contrasena: String!): AuthPayload
-//   # Add other mutations for registration, etc.
-// }
 //RESOLVERS
 const resolvers = {
 	Query: {
@@ -79,7 +76,6 @@ const resolvers = {
 				throw new Error(`Error al obtener los usuarios: ${error}`);
 			}
 		},
-		// Otros resolvers de consulta según sea necesario
 	},
 
 	Mutation: {
@@ -87,40 +83,34 @@ const resolvers = {
 			try {
 				const { email, nombre_usuario, contrasena } = input;
 
-				// Lógica para registrar al usuario y obtener el mensaje de confirmación
 				const message = await registerUser(email, nombre_usuario, contrasena);
+				// console.log("message", message);
 
 				return { message };
 			} catch (error) {
 				throw new Error(`Error al registrar el usuario: ${error.message}`);
 			}
 		},
-	},
 
-	Mutation: {
 		loginUser: async (_, { input }) => {
 			try {
 				const { email, contrasena } = input;
 
-				// Lógica para registrar al usuario y obtener el mensaje de confirmación
 				const result = await loginUser(email, contrasena);
-				console.log("result", result);
+				// console.log("result", result);
 
 				return result;
 			} catch (error) {
 				throw new Error(`Error al inciar sesion (resolver): ${error.message}`);
 			}
 		},
-	},
 
-	Mutation: {
 		loginGoogleUser: async (_, { input }) => {
 			try {
 				const { clientId, credential } = input;
 
-				// Lógica para registrar al usuario y obtener el mensaje de confirmación
 				const result = await loginGoogleUser(clientId, credential);
-				console.log("GOOGLE USER MUTATION--------->", result);
+				// console.log("GOOGLE USER MUTATION--------->", result);
 
 				return result;
 			} catch (error) {
@@ -129,20 +119,5 @@ const resolvers = {
 		},
 	},
 };
-
-const users = [
-	{
-		id: "1",
-		name: "Ada Lovelace",
-		birthDate: "1815-12-10",
-		username: "@ada",
-	},
-	{
-		id: "2",
-		name: "Alan Turing",
-		birthDate: "1912-06-23",
-		username: "@complete",
-	},
-];
 
 module.exports = { typeDefs, resolvers };

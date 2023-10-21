@@ -165,6 +165,7 @@ async function registerUser(email, nombre_usuario, contrasena) {
 			const hashedPassword = await bcrypt.hash(contrasena, 10); // 10 es el número de rondas de hashing
 
 			const data = await insertUser(email, nombre_usuario, hashedPassword);
+			console.log("data", data);
 
 			// Respuesta
 			// return "OK";

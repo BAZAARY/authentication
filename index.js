@@ -11,7 +11,7 @@
 
 require("dotenv").config();
 
-const express = require("express");
+// const express = require("express");
 const { ApolloServer, gql } = require("apollo-server");
 const { buildFederatedSchema } = require("@apollo/federation");
 const { resolvers, typeDefs } = require("./src/configs/gateway");
@@ -19,19 +19,19 @@ const { resolvers, typeDefs } = require("./src/configs/gateway");
 // const cors = require("cors");
 
 //IMPORTAR RUTAS
-const authRoutes = require("./src/routes/authRoutes");
-const app = express();
+// const authRoutes = require("./src/routes/authRoutes");
+// const app = express();
 
-const { configureCORS } = require("./src/middlewares/corsMiddleware");
+// const { configureCORS } = require("./src/middlewares/corsMiddleware");
 
 // Middleware for parsing JSON bodies
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
 
 // Allow all the incoming IP addresses
-//app.use(cors());
-app.use(configureCORS);
-app.use(authRoutes);
+// app.use(cors());
+// app.use(configureCORS);
+// app.use(authRoutes);
 
 const server = new ApolloServer({
 	schema: buildFederatedSchema([
