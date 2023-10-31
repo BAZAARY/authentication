@@ -1,11 +1,3 @@
-// const bcrypt = require("bcrypt"); // Para encriptar contraseñas
-// const jwt = require("jsonwebtoken"); // Para manejar tokens JWT
-// const {
-// 	traemeusuarios,
-// 	loginUser,
-// 	registerUser,
-// 	loginGoogleUser,
-// } = require("../controllers/authController");
 import {
 	traemeusuarios,
 	loginUser,
@@ -19,9 +11,6 @@ import { gql } from "apollo-server-express";
 export const typeDefs = gql`
 	extend type Query {
 		users: User
-		registerUser: RegistrationResult
-		loginUser: LoginResult
-		loginGoogleUser: LoginGoogleResult
 	}
 
 	type User @key(fields: "id_usuario") {
@@ -73,10 +62,8 @@ export const typeDefs = gql`
 export const resolvers = {
 	Query: {
 		users: async () => {
-			console.log("AAAAAAAAAAAAAAAA");
 			try {
 				const data = await getUsers();
-				console.log("------------->", data[0]);
 				return data[0];
 			} catch (error) {
 				throw new Error(`Error al obtener los usuarios: ${error}`);
@@ -90,7 +77,6 @@ export const resolvers = {
 				const { email, nombre_usuario, contrasena } = input;
 
 				const message = await registerUser(email, nombre_usuario, contrasena);
-				// console.log("message", message);
 
 				return { message };
 			} catch (error) {
@@ -103,7 +89,6 @@ export const resolvers = {
 				const { email, contrasena } = input;
 
 				const result = await loginUser(email, contrasena);
-				// console.log("result", result);
 
 				return result;
 			} catch (error) {
@@ -116,7 +101,6 @@ export const resolvers = {
 				const { clientId, credential } = input;
 
 				const result = await loginGoogleUser(clientId, credential);
-				// console.log("GOOGLE USER MUTATION--------->", result);
 
 				return result;
 			} catch (error) {

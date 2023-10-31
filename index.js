@@ -15,7 +15,7 @@ import { buildSubgraphSchema } from "@apollo/subgraph";
 import http from "http";
 import express from "express";
 import cors from "cors";
-import { typeDefs, resolvers } from "./src/configs/gateway.js";
+import { typeDefs, resolvers } from "./src/configs/connection.js";
 
 const app = express();
 
