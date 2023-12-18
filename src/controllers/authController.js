@@ -74,6 +74,9 @@ export async function loginUser(email, contrasena) {
 			// Generar token JWT con el id_usuario email y nombre del usuario
 			const token = jwt.sign(user, secretKey);
 
+			console.log("Transaction end");
+			transaction.end();
+
 			// Enviar el token al frontend con los datos del usuario y un mensaje de confirmacion
 			resolve({ user, token, message: "Inicio de sesión exitoso" });
 		} catch (error) {
@@ -82,12 +85,10 @@ export async function loginUser(email, contrasena) {
 			//Capturar error, enviar log y finalizar transaccion
 			apmInstance.captureError(error);
 			apmInstance.logger.error("Ha ocurrido un error:", error);
+			transaction.end();
 
 			// Rechaza la promesa con el error
 			reject(error);
-		} finally {
-			console.log("Transaction end");
-			transaction.end();
 		}
 	});
 }
