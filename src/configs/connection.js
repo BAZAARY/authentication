@@ -1,9 +1,4 @@
-import {
-	traemeusuarios,
-	loginUser,
-	registerUser,
-	loginGoogleUser,
-} from "../controllers/authController.js";
+import { loginUser, registerUser, loginGoogleUser } from "../controllers/authController.js";
 import { getUsers } from "../models/UsuariosModel.js";
 import { gql } from "apollo-server-express";
 

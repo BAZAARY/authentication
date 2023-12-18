@@ -16,6 +16,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { config } from "dotenv";
 import apm from "elastic-apm-node";
+import axios from "axios";
 
 config();
 
@@ -76,6 +77,18 @@ export async function loginUser(email, contrasena) {
 
 			console.log("Transaction end");
 			transaction.end();
+
+			// Aquí agregamos el envío de logs a Elasticsearch
+			const logs = [
+				{ index: { _index: "logs", _type: "_doc" } },
+				{
+					message: "Inicio de sesión exitoso",
+					timestamp: new Date().toISOString(),
+					user_id: user.id_usuario,
+				},
+			];
+
+			await sendLogsToElasticsearch(logs); // Llama a la función para enviar logs a Elasticsearch
 
 			// Enviar el token al frontend con los datos del usuario y un mensaje de confirmacion
 			resolve({ user, token, message: "Inicio de sesión exitoso" });
@@ -163,37 +176,6 @@ export async function loginGoogleUser(clientId, credential) {
 	});
 }
 
-// Ruta para enviar el correo electrónico
-// async function recoveryPasswordUser(req, res) {
-// 	const { to, subject, body } = req.body;
-
-// 	newData = {};
-
-// 	newData["contrasena"] = Math.random().toString(36).slice(-8);
-
-// 	const mailOptions = {
-// 		from: "romainteractiva@gmail.com",
-// 		to,
-// 		subject,
-// 		html: body + newData["contrasena"],
-// 	};
-
-// 	newData["contrasena"] = await bcrypt.hash(newData["contrasena"], 10);
-
-// 	const newPassword = await updatePasswordUser(to);
-
-// 	// Envía el correo electrónico utilizando nodemailer
-// 	transporter.sendMail(mailOptions, (error, info) => {
-// 		if (error) {
-// 			console.error("Error al enviar el correo electrónico:", error);
-// 			res.status(500).json("Ocurrió un error al enviar el correo electrónico");
-// 		} else {
-// 			console.log("Correo electrónico enviado:", info.response);
-// 			res.status(200).json({ message: "Correo electrónico enviado exitosamente" });
-// 		}
-// 	});
-// }
-
 //POST para el registro de usuarios
 export async function registerUser(email, nombre_usuario, contrasena) {
 	return new Promise(async (resolve, reject) => {
@@ -235,29 +217,22 @@ export async function registerUser(email, nombre_usuario, contrasena) {
 	});
 }
 
-async function currentUser(req, res) {
-	const userId = req.user.id_usuario;
-	const email = req.user.email;
-	const username = req.user.nombre_usuario;
-
-	console.log("INFO TOKEN:", userId, email, username);
-
-	res.json({ userId, email, username });
-}
-
-// // Obtener informacion de todos los usuarios de la base de datos
-export async function traemeusuarios(req, res) {
+// Función para enviar logs a Elasticsearch
+async function sendLogsToElasticsearch(logs) {
 	try {
-		const data = await getUsers();
-		// console.log(
-		// 	"HOLA, ESTOY EN users-------------------------",
-		// 	typeof data[0].email,
-		// 	data[0].email
-		// );
-		// console.log(data);
-		// Enviar la respuesta en formato JSON
-		res.json(data[0].email);
+		const ELASTICSEARCH_ENDPOINT =
+			"https://017f20cd667948199b024b97e2c47ca6.apm.us-central1.gcp.cloud.es.io:443"; // Reemplaza con tu endpoint de Elasticsearch
+
+		const logData = logs.map((log) => JSON.stringify(log)).join("\n") + "\n";
+
+		console.log("Enviando a ELASTICSEARCH");
+
+		await axios.post(ELASTICSEARCH_ENDPOINT, logData, {
+			headers: {
+				"Content-Type": "application/json",
+			},
+		});
 	} catch (error) {
-		res.status(500).json({ error: `Error al obtener los usuarios: ${error.message}` });
+		console.error("Error al enviar logs a Elasticsearch:", error.message);
 	}
 }
