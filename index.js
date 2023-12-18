@@ -8,6 +8,19 @@
 * utils: Contiene utilidades compartidas que pueden ser utilizadas en diferentes partes de la aplicación.
 * config: Almacena archivos de configuración, como configuraciones de base de datos o claves secretas.
 */
+// Add this to the very top of the first file loaded in your app
+
+import apm from "elastic-apm-node";
+
+const apmInstance = apm.start({
+	serviceName: "authentication-service",
+
+	secretToken: "pmzj1HFP3c3kwUw3Gl",
+
+	serverUrl: "https://017f20cd667948199b024b97e2c47ca6.apm.us-central1.gcp.cloud.es.io:443",
+
+	environment: "my-environment",
+});
 
 import { ApolloServer, gql } from "apollo-server-express";
 import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
