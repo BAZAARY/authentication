@@ -55,7 +55,6 @@ export const insertUser = async (email, nombre_usuario, hashedPassword) => {
 		const { data, error: insertError } = await supabase
 			.from("usuarios")
 			.insert([{ email, nombre_usuario, contrasena: hashedPassword }]);
-		console.log("34324342343233333333333333333333333333333");
 
 		//Si hay un error durante la insercion de los datos del usuario
 		if (insertError) {

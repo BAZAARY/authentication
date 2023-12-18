@@ -11,6 +11,7 @@ import {
 	insertGoogleUser,
 } from "../models/UsuariosModel.js";
 import { verifyTokenGoogle } from "../middlewares/authMiddleware.js";
+import { apmInstance } from "../../index.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { config } from "dotenv";
@@ -22,13 +23,23 @@ const secretKey = process.env.SECRET_KEY_JWT;
 //POST para el inicio de sesion de los usuarios
 export async function loginUser(email, contrasena) {
 	return new Promise(async (resolve, reject) => {
-		try {
-			// Datos obtenidos por el frontend
-			// const { email, contrasena } = req.body;
-			const transaction = apmInstance.startTransaction("Inicio de sesión", "request");
+		//Start transaction
+		const transaction = apmInstance.startTransaction("Inicio de sesión", "request");
 
+		try {
 			// Realizar la consulta para obtener todos los datos del usuario en la base de datos
 			const usuarioData = await getUserByEmail(email);
+
+			// Agregar etiquetas para clasificar la transacción
+			transaction.addLabels({
+				email: email,
+				accion: "login",
+			});
+
+			// Agregar contexto adicional sobre el usuario y la solicitud
+			transaction.setUserContext({
+				email: email,
+			});
 
 			// Verificar el hash de la contraseña
 			const contrasenaHash = usuarioData.contrasena;
@@ -51,14 +62,19 @@ export async function loginUser(email, contrasena) {
 			// Generar token JWT con el id_usuario email y nombre del usuario
 			const token = jwt.sign(user, secretKey);
 
-			transaction.end();
 			// Enviar el token al frontend con los datos del usuario y un mensaje de confirmacion
 			resolve({ user, token, message: "Inicio de sesión exitoso" });
 		} catch (error) {
 			console.error("Error al inciar sesion:", error);
 
+			//Capturar error, enviar log y finalizar transaccion
+			apmInstance.captureError(error);
+			apmInstance.logger.error("Ha ocurrido un error:", error);
+
 			// Rechaza la promesa con el error
 			reject(error);
+		} finally {
+			transaction.end();
 		}
 	});
 }
@@ -66,17 +82,27 @@ export async function loginUser(email, contrasena) {
 //POST LOGIN WITH GOOGLE
 export async function loginGoogleUser(clientId, credential) {
 	return new Promise(async (resolve, reject) => {
+		//Start transaction
+		const transaction = apmInstance.startTransaction("Inicio de sesión con Google", "request");
+
 		try {
-			// const { credentialResponse } = req.body;
-
-			// const clientId = credentialResponse.clientId;
-			// const credential = credentialResponse.credential;
-
 			// Verificar el token con la función verifyTokenGoogle
 			const payload = await verifyTokenGoogle(clientId, credential);
 
 			//Obtener datos del usuario
 			const { email, name, picture, given_name } = payload;
+
+			// Agregar etiquetas para clasificar la transacción
+			transaction.addLabels({
+				email: email,
+				usuario: name,
+				accion: "login with google",
+			});
+
+			// Agregar contexto adicional sobre el usuario y la solicitud
+			transaction.setUserContext({
+				email: email,
+			});
 
 			//Email a verificar si ya existe en la base de datos
 			const emailToCheck = email;
@@ -111,7 +137,14 @@ export async function loginGoogleUser(clientId, credential) {
 			resolve({ user, token, message: "Inicio de sesión (Google) exitoso" });
 		} catch (error) {
 			console.error("Error al iniciar sesión:", error);
+
+			//Capturar error, enviar log y finalizar transaccion
+			apmInstance.captureError(error);
+			apmInstance.logger.error("Ha ocurrido un error:", error);
+
 			res.status(500).json({ error: "Credenciales de inicio de sesión inválidas" });
+		} finally {
+			transaction.end();
 		}
 	});
 }
@@ -150,27 +183,40 @@ export async function loginGoogleUser(clientId, credential) {
 //POST para el registro de usuarios
 export async function registerUser(email, nombre_usuario, contrasena) {
 	return new Promise(async (resolve, reject) => {
-		try {
-			// Datos de registro del usuario recibidos
-			// const { email, nombre_usuario, contrasena } = input;
+		//Start transaction
+		const transaction = apmInstance.startTransaction("Registro de usuario", "request");
 
+		try {
 			// Generar el hash de la contraseña
 			const hashedPassword = await bcrypt.hash(contrasena, 10); // 10 es el número de rondas de hashing
 
-			const data = await insertUser(email, nombre_usuario, hashedPassword);
-			console.log("data", data);
+			// Agregar etiquetas para clasificar la transacción
+			transaction.addLabels({
+				email: email,
+				usuario: nombre_usuario,
+				accion: "registro",
+			});
 
-			// Respuesta
-			// return "OK";
+			// Agregar contexto adicional sobre el usuario y la solicitud
+			transaction.setUserContext({
+				email: email,
+			});
+
+			const data = await insertUser(email, nombre_usuario, hashedPassword);
 
 			// Resuelve la promesa con el resultado si es necesario
 			resolve("OK");
 		} catch (error) {
 			console.error("Error al crear el usuario:", error);
 
+			//Capturar error, enviar log y finalizar transaccion
+			apmInstance.captureError(error);
+			apmInstance.logger.error("Ha ocurrido un error:", error);
+
 			// Rechaza la promesa con el error
 			reject(error);
-			// res.status(500).json({ error: error.message });
+		} finally {
+			transaction.end();
 		}
 	});
 }
@@ -201,12 +247,3 @@ export async function traemeusuarios(req, res) {
 		res.status(500).json({ error: `Error al obtener los usuarios: ${error.message}` });
 	}
 }
-
-// module.exports = {
-// 	loginUser,
-// 	loginGoogleUser,
-// 	registerUser,
-// 	// recoveryPasswordUser,
-// 	currentUser,
-// 	traemeusuarios,
-// };

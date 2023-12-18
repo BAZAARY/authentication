@@ -72,6 +72,10 @@ export const resolvers = {
 	},
 
 	Mutation: {
+		/**
+		 *
+		 * USER REGISTER
+		 */
 		registerUser: async (_, { input }) => {
 			try {
 				const { email, nombre_usuario, contrasena } = input;
@@ -84,6 +88,10 @@ export const resolvers = {
 			}
 		},
 
+		/**
+		 *
+		 * USER LOGIN
+		 */
 		loginUser: async (_, { input }) => {
 			try {
 				const { email, contrasena } = input;
@@ -96,6 +104,10 @@ export const resolvers = {
 			}
 		},
 
+		/**
+		 *
+		 * USER GOOGLE LOGIN
+		 */
 		loginGoogleUser: async (_, { input }) => {
 			try {
 				const { clientId, credential } = input;

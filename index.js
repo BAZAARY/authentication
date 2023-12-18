@@ -53,3 +53,5 @@ startApolloServer(app, httpServer);
 app.listen(9000, () =>
 	console.log("🚀 AUTHENTICATION Server ready at http://localhost:9000/graphql")
 );
+
+export { apmInstance };
