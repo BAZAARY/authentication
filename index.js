@@ -25,6 +25,7 @@
 import { ApolloServer, gql } from "apollo-server-express";
 import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
 import { buildSubgraphSchema } from "@apollo/subgraph";
+import { ApolloServerPluginUsageReporting } from "@apollo/server/plugin/usageReporting";
 import http from "http";
 import express from "express";
 import cors from "cors";
@@ -37,20 +38,39 @@ app.use(express.json());
 
 const httpServer = http.createServer(app);
 
+const myLoggingPlugin = {
+	requestDidStart(requestContext) {
+		console.log("Request started! Query:\n", requestContext.request.query);
+
+		return {
+			parsingDidStart() {
+				console.log("Parsing started!");
+			},
+			validationDidStart() {
+				console.log("Validation started!");
+			},
+			executionDidStart() {
+				console.log("Execution started!");
+			},
+			willSendResponse() {
+				console.log("Will send response!");
+			},
+			didEncounterErrors() {
+				console.error("Encountered errors!");
+			},
+		};
+	},
+};
+
 const startApolloServer = async (app, httpServer) => {
 	const server = new ApolloServer({
 		schema: buildSubgraphSchema({ typeDefs, resolvers }),
 		introspection: true,
 		tracing: true,
-		plugins: [
-			ApolloServerPluginDrainHttpServer({ httpServer }),
-			// ApolloServerPluginUsageReporting({
-			// 	// fieldLevelInstrumentation: 0.5,
-			// 	sendVariableValues: { all: true },
-			// }),
-		],
-		sendVariableValues: {
-			all: true, // Puedes configurar diferentes opciones aquí según tu caso de uso
+
+		plugins: [ApolloServerPluginDrainHttpServer({ httpServer }), myLoggingPlugin],
+		engine: {
+			sendVariableValues: { exceptNames: ["password"] },
 		},
 	});
 
