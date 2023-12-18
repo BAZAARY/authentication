@@ -25,6 +25,7 @@
 import { ApolloServer, gql } from "apollo-server-express";
 import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
 import { buildSubgraphSchema } from "@apollo/subgraph";
+import { ApolloServerPluginInlineTrace } from "@apollo/server/plugin/inlineTrace";
 import http from "http";
 import express from "express";
 import cors from "cors";
@@ -41,6 +42,7 @@ const startApolloServer = async (app, httpServer) => {
 	const server = new ApolloServer({
 		schema: buildSubgraphSchema({ typeDefs, resolvers }),
 		introspection: true,
+		tracing: true,
 		plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 	});
 

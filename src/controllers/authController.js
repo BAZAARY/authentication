@@ -78,18 +78,6 @@ export async function loginUser(email, contrasena) {
 			console.log("Transaction end");
 			transaction.end();
 
-			// Aquí agregamos el envío de logs a Elasticsearch
-			const logs = [
-				{ index: { _index: "logs", _type: "_doc" } },
-				{
-					message: "Inicio de sesión exitoso",
-					timestamp: new Date().toISOString(),
-					user_id: user.id_usuario,
-				},
-			];
-
-			await sendLogsToElasticsearch(logs); // Llama a la función para enviar logs a Elasticsearch
-
 			// Enviar el token al frontend con los datos del usuario y un mensaje de confirmacion
 			resolve({ user, token, message: "Inicio de sesión exitoso" });
 		} catch (error) {
@@ -215,24 +203,4 @@ export async function registerUser(email, nombre_usuario, contrasena) {
 			transaction.end();
 		}
 	});
-}
-
-// Función para enviar logs a Elasticsearch
-async function sendLogsToElasticsearch(logs) {
-	try {
-		const ELASTICSEARCH_ENDPOINT =
-			"https://017f20cd667948199b024b97e2c47ca6.apm.us-central1.gcp.cloud.es.io:443"; // Reemplaza con tu endpoint de Elasticsearch
-
-		const logData = logs.map((log) => JSON.stringify(log)).join("\n") + "\n";
-
-		console.log("Enviando a ELASTICSEARCH");
-
-		await axios.post(ELASTICSEARCH_ENDPOINT, logData, {
-			headers: {
-				"Content-Type": "application/json",
-			},
-		});
-	} catch (error) {
-		console.error("Error al enviar logs a Elasticsearch:", error.message);
-	}
 }
