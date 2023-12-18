@@ -11,20 +11,32 @@ import {
 	insertGoogleUser,
 } from "../models/UsuariosModel.js";
 import { verifyTokenGoogle } from "../middlewares/authMiddleware.js";
-import { apmInstance } from "../../index.js";
+// import { apmInstance } from "../../index.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { config } from "dotenv";
+import apm from "elastic-apm-node";
 
 config();
 
 const secretKey = process.env.SECRET_KEY_JWT;
+
+const apmInstance = apm.start({
+	serviceName: "authentication-service",
+
+	secretToken: "pmzj1HFP3c3kwUw3Gl",
+
+	serverUrl: "https://017f20cd667948199b024b97e2c47ca6.apm.us-central1.gcp.cloud.es.io:443",
+
+	environment: "my-environment",
+});
 
 //POST para el inicio de sesion de los usuarios
 export async function loginUser(email, contrasena) {
 	return new Promise(async (resolve, reject) => {
 		//Start transaction
 		const transaction = apmInstance.startTransaction("Inicio de sesión", "request");
+		console.log("Transaction start" + transaction);
 
 		try {
 			// Realizar la consulta para obtener todos los datos del usuario en la base de datos
@@ -74,6 +86,7 @@ export async function loginUser(email, contrasena) {
 			// Rechaza la promesa con el error
 			reject(error);
 		} finally {
+			console.log("Transaction end");
 			transaction.end();
 		}
 	});

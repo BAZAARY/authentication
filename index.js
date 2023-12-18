@@ -10,17 +10,17 @@
 */
 // Add this to the very top of the first file loaded in your app
 
-import apm from "elastic-apm-node";
+// import apm from "elastic-apm-node";
 
-const apmInstance = apm.start({
-	serviceName: "authentication-service",
+// const apmInstance = apm.start({
+// 	serviceName: "authentication-service",
 
-	secretToken: "pmzj1HFP3c3kwUw3Gl",
+// 	secretToken: "pmzj1HFP3c3kwUw3Gl",
 
-	serverUrl: "https://017f20cd667948199b024b97e2c47ca6.apm.us-central1.gcp.cloud.es.io:443",
+// 	serverUrl: "https://017f20cd667948199b024b97e2c47ca6.apm.us-central1.gcp.cloud.es.io:443",
 
-	environment: "my-environment",
-});
+// 	environment: "my-environment",
+// });
 
 import { ApolloServer, gql } from "apollo-server-express";
 import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
@@ -54,4 +54,4 @@ app.listen(9000, () =>
 	console.log("🚀 AUTHENTICATION Server ready at http://localhost:9000/graphql")
 );
 
-export { apmInstance };
+// export { apmInstance };
