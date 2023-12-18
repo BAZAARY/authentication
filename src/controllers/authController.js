@@ -25,6 +25,7 @@ export async function loginUser(email, contrasena) {
 		try {
 			// Datos obtenidos por el frontend
 			// const { email, contrasena } = req.body;
+			const transaction = apmInstance.startTransaction("Inicio de sesión", "request");
 
 			// Realizar la consulta para obtener todos los datos del usuario en la base de datos
 			const usuarioData = await getUserByEmail(email);
@@ -50,6 +51,7 @@ export async function loginUser(email, contrasena) {
 			// Generar token JWT con el id_usuario email y nombre del usuario
 			const token = jwt.sign(user, secretKey);
 
+			transaction.end();
 			// Enviar el token al frontend con los datos del usuario y un mensaje de confirmacion
 			resolve({ user, token, message: "Inicio de sesión exitoso" });
 		} catch (error) {
